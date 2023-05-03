@@ -14,8 +14,8 @@ import {
   TitleComponent,
   LegendComponent,
 } from 'echarts/components';
-import VChart, { THEME_KEY } from 'vue-echarts';
-import { computed, ref, provide } from 'vue';
+import VChart from 'vue-echarts';
+import { ref } from 'vue';
 
 use([
   LineChart,
@@ -32,65 +32,104 @@ use([
   LegendComponent,
 ]);
 
-provide(THEME_KEY, 'dark');
-
-let isLoading = ref(true);
-let q = ref(-1);
-let dataset = ref({
-  'Q1-2023': {
-    dates: ['2023-01', '2023-02', '2023-03'],
-    data: [10, 6, 7],
+const option = ref({
+  baseOption: {
+    title: {
+      text: "Issues for year 2023",
+      left: "10%",
+    },
+    legend: {
+      data: ["nb_resolved", "nb_submitted"],
+      formatter: (name) => {
+        let msg = "";
+        if (name === "nb_resolved") {
+          msg = "Resolved";
+        } else if (name === "nb_submitted") {
+          msg = "Submitted";
+        }
+        return msg + " issues";
+      },
+      top: "2%",
+      right: "5%",
+    },
+    tooltip: {
+      trigger: "axis",
+    },
+    xAxis: {
+      type: "category",
+      name: "Dates",
+    },
+    yAxis: {
+      type: "",
+      name: "Number of issues",
+      min: 0,
+    },
+    timeline: {
+      axisType: "category",
+      show: true,
+      data: ["Q1-2023", "Q2-2023"],
+    },
+    series: [
+      {
+        name: "nb_resolved",
+        type: "line",
+        color: "green",
+        dimensions: ["dates", "nb_resolved"],
+        symbolSize: 8,
+      },
+      // {
+      //   name: "nb_submitted",
+      //   type: "line",
+      //   color: "red",
+      //   dimensions: ["dates", "nb_submitted"],
+      //   symbolSize: 8,
+      // },
+    ],
   },
-  'Q2-2023': {
-    dates: ['2023-04', '2023-05'],
-    data: [3, 2],
-  },
-});
-let quarters = ref(['Q1-2023', 'Q2-2023']);
-
-let chartOptions = computed(() => {
-  let currentIndex = q.value === -1 ? quarters.value.length - 1 : q.value;
-  console.log(dataset.value[quarters.value[currentIndex]].dates);
-  let option = {
-    baseOption: {
-      title: {
-        text: 'Numbers for year 2023',
-      },
-      xAxis: {
-        type: 'category',
-        name: 'Dates',
-        data: dataset.value[quarters.value[currentIndex]].dates,
-      },
-      yAxis: {
-        type: '',
-        name: 'Numbers',
-        min: 0,
-      },
-      timeline: {
-        axisType: 'category',
-        show: true,
-        data: quarters.value,
-        replaceMerge: 'series',
-        currentIndex: currentIndex,
+  options: [
+    {
+      dataset: {
+        source: [
+          {
+            quarter: "Q1-2023",
+            nb_resolved: 10,
+            nb_submitted: 8,
+            dates: "2023-01",
+          },
+          {
+            quarter: "Q1-2023",
+            nb_resolved: 16,
+            nb_submitted: 15,
+            dates: "2023-02",
+          },
+          {
+            quarter: "Q1-2023",
+            nb_resolved: 28,
+            nb_submitted: 19,
+            dates: "2023-03",
+          },
+        ],
       },
     },
-    options: [],
-  };
-  quarters.value.forEach((quarter) => {
-    option.options.push({
-      series: [
-        {
-          name: 'number',
-          type: 'line',
-          symbolSize: 8,
-          data: dataset.value[quarter].data,
-        },
-      ],
-    });
-  });
-  console.log(option);
-  isLoading.value = false;
-  return option;
+    {
+      dataset: {
+        source: [
+          {
+            quarter: "Q2-2023",
+            nb_resolved: 3,
+            nb_submitted: 4,
+            dates: "2023-04",
+          },
+          {
+            quarter: "Q2-2023",
+            nb_resolved: 5,
+            nb_submitted: 9,
+            dates: "2023-05",
+          },
+        ],
+      },
+    },
+  ],
 });
 </script>
 
@@ -101,11 +140,7 @@ let chartOptions = computed(() => {
         <el-row class="el-row" :gutter="12">
           <el-col :span="24">
             <el-card class="no-v-padding">
-              <v-chart
-                :option="chartOptions"
-                class="chart"
-                autoresize
-              ></v-chart>
+              <v-chart :option="option" class="chart" autoresize></v-chart>
             </el-card>
           </el-col>
         </el-row>
