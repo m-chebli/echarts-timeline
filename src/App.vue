@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, provide } from 'vue';
+import { use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 import { LineChart } from 'echarts/charts';
 import {
@@ -15,7 +15,7 @@ import {
   LegendComponent,
 } from 'echarts/components';
 import VChart, { THEME_KEY } from 'vue-echarts';
-import { use } from 'echarts/core';
+import { computed, ref, provide } from 'vue';
 
 use([
   LineChart,
